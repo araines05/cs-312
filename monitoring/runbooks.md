@@ -7,8 +7,6 @@
 **First check:**
 kubectl get pods -n minecraft
 
-Is the pod running? If not, thats your problem.
-
 **If pod is Running but server is still down:**
 kubectl logs -n minecraft -l app=minecraft --tail=50
 
