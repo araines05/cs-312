@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mc-monitor
+  namespace: minecraft
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mc-monitor
+  template:
+    metadata:
+      labels:
+        app: mc-monitor
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: mc-monitor
+          image: itzg/mc-monitor:latest
+          args:
+            - export-for-prometheus
+            - --servers
+            - minecraft.minecraft.svc.cluster.local:25565
+          ports:
+            - containerPort: 8080
+              name: metrics
+          resources:
+            requests:
+              memory: 32Mi
+              cpu: 10m
+            limits:
+              memory: 64Mi
+              cpu: 50m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mc-monitor
+  namespace: minecraft
+  labels:
+    app: mc-monitor
+spec:
+  selector:
+    app: mc-monitor
+  ports:
+    - name: metrics
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mc-monitor
+  namespace: minecraft
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: mc-monitor
+  endpoints:
+    - port: metrics
+      interval: 30s

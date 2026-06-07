@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minecraft-config
+  namespace: minecraft
+data:
+  EULA: "TRUE"
+  DIFFICULTY: "normal"
+  MAX_PLAYERS: "10"
+  MOTD: "Ahman Raines"
+  MEMORY: "2G"
+  TYPE: "PAPER"
